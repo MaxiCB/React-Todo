@@ -1,13 +1,75 @@
 import React from 'react';
 
+import TodoList from './components/TodoComponents/TodoList';
+import TodoForm from './components/TodoComponents/TodoForm';
+
 class App extends React.Component {
-  // you will need a place to store your state in this component.
-  // design `App` to be the parent component of your application.
-  // this component is going to take care of state, and any change handlers you need to work with your state
+
+  constructor() {
+    super();
+    this.state = {
+      tasks: []
+    }
+  }
+
+  componentDidMount() {
+    const local = localStorage.getItem('tasks');
+    console.log(JSON.parse(local));
+    const tasks = JSON.parse(local);
+    this.setState({tasks})
+  }
+
+  addTodo = (todo) => {
+    console.log(todo);
+    console.log(this.state.tasks);
+    this.setState(state => {
+      const tasks = [...state.tasks, todo];
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      return {
+        tasks
+      }
+    })
+  };
+
+  removeTodo = (id) => {
+    this.setState(state => {
+      const tasks = state.tasks.filter(item => item.id === id);
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      return {
+        tasks,
+      }
+    })
+  }
+
+  toggleComplete = (id) => {
+    this.setState(state => {
+      const tasks = [...state.tasks];
+      const task = tasks.find(element => element.id === id);
+      if(task !== undefined) {
+        task.status = !task.status;
+      }
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      return {
+        tasks
+      }
+    })
+  }
+
+  removeComplete = () => {
+    this.setState(state => {
+      const tasks = state.tasks.filter(item => item.status !== true);
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      return {
+        tasks,
+      }
+    })
+  }
+
   render() {
     return (
       <div>
-        <h2>Welcome to your Todo App!</h2>
+        <TodoList tasks={this.state.tasks} removeTodo={this.removeTodo} toggleComplete={this.toggleComplete}/>
+        <TodoForm addTodo={this.addTodo} removeComplete={this.removeComplete}/>
       </div>
     );
   }
